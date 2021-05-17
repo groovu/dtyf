@@ -1,5 +1,6 @@
 # Don't Touch Your Face
 Python app using OpenCV and Mediapipe that detects when users are touching or are about to touch their face.
+
 ![image](https://user-images.githubusercontent.com/43489192/118425189-80065d00-b67d-11eb-9c7b-86fe1228f460.png)
 
 
@@ -13,11 +14,14 @@ pip install mediapipe
 
 To run the app, open the file location in your terminal and run
 ```
-python .\dtyf.py build
+python dtyf.py build
 ```
 
-Press ESC to exit.
+Press ESC to exit the app.
 
 # To Do
+Figure out how to access webcam while in use during video calls.
+
 Figure out how to get coordinates of face and hands
+
 Implement algo to detect when hand coordinates overlap with face.  
