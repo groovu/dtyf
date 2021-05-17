@@ -1,5 +1,7 @@
 import mediapipe as mp
 import cv2
+import msvcrt
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
@@ -13,6 +15,10 @@ cap = cv2.VideoCapture(0)
 with mp_holistic.Holistic(min_detection_confidence=0.25, min_tracking_confidence=0.25) as holistic:
     
     while cap.isOpened():
+        # how do I change the read rate?
+        # I imagine once I start doing calculations to figure out if the hands are near the face
+        # things will slow down.
+        # no need to read in as fast as possible.
         ret, frame = cap.read()
         # turns frame into mirror
         # frame = cv2.flip(frame,1)
@@ -22,38 +28,37 @@ with mp_holistic.Holistic(min_detection_confidence=0.25, min_tracking_confidence
         # Make Detections
         results = holistic.process(image)
         # prints coords of face / hands?
-        print(results.face_landmarks)
-        print(results.left_hand_landmarks)
-        print(results.right_hand_landmarks)
+        # print(results.face_landmarks)
+        # print(results.left_hand_landmarks)
+        # print(results.right_hand_landmarks)
         # how do I access all of the points for each landmark though?  (face border, fingers, etc.)
         
         # face_landmarks, pose_landmarks, left_hand_landmarks, right_hand_landmarks
         
         # Recolor image back to BGR for rendering
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        head_draw_spec = mp_drawing.DrawingSpec(color=(100,0,0), thickness=1, circle_radius=1)
+        left_draw_spec = mp_drawing.DrawingSpec(color=(0,100,0), thickness=1, circle_radius=1)
+        right_draw_spec = mp_drawing.DrawingSpec(color=(0,0,100), thickness=1, circle_radius=1)
         
-        # 1. Draw face landmarks
+        # Face landmarks
         mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACE_CONNECTIONS, 
-                                 mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-                                 mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-                                 )
+                                 head_draw_spec)
         
-        # 2. Right hand
+        #Right hand
         mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS, 
-                                 mp_drawing.DrawingSpec(color=(180,22,10), thickness=2, circle_radius=4),
-                                 mp_drawing.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2)
-                                 )
+                                 right_draw_spec)
 
-        # 3. Left Hand
+        #Left Hand
         mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS, 
-                                 mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
-                                 mp_drawing.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
-                                 )
+                                 left_draw_spec)
 
 
-        cv2.imshow('Raw Webcam Feed', image)
+        cv2.imshow('Video Feed', image)
 
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+        exit = cv2.waitKey(10) # press ESC to exit
+        if exit == 27:
             break
 
 cap.release()
