@@ -1,25 +1,43 @@
 import cv2
-import numpy as np
+import mediapipe as mp
 
-cv2.namedWindow('window')
-fill_val = np.array([255, 255, 255], np.uint8)
-def trackbar_callback(idx, value):
-    fill_val[idx] = value
+mphands = mp.solutions.hands
+hands = mphands.Hands()
+face = mp.solutions.face_mesh
+mp_drawing = mp.solutions.drawing_utils
+cap = cv2.VideoCapture(0)
 
-cv2.createTrackbar('R', 'window', 255, 255, lambda v: trackbar_callback(2, v))
-cv2.createTrackbar('G', 'window', 255, 255, lambda v: trackbar_callback(1, v))
-cv2.createTrackbar('B', 'window', 255, 255, lambda v: trackbar_callback(0, v))
 
-cv2.createButton("Back", back(),None, cv2.QT_PUSH_BUTTON,1)
+_, frame = cap.read()
 
-def back(*args):
-    
-    cv2.destroyAllWindows()
+h, w, c = frame.shape
 
 while True:
-    image = np.full((500, 500, 3), fill_val)
-    cv2.imshow('window', image)
-    key = cv2.waitKey(3)
-    if key == 27: 
-        break
-cv2.destroyAllWindows()
+    _, frame = cap.read()
+    framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    result = hands.process(framergb)
+    hand_landmarks = result.multi_hand_landmarks
+    face_landmarks = face.multi_face_landmarks
+    # if face_landmarks:
+    #     mp_drawing.draw_landmarks(frame, face_landmarks, face.FACE_CONNECTIONS)
+    if hand_landmarks:
+        for handLMs in hand_landmarks:
+            x_max = 0
+            y_max = 0
+            x_min = w
+            y_min = h
+            for lm in handLMs.landmark:
+                x, y = int(lm.x * w), int(lm.y * h)
+                if x > x_max:
+                    x_max = x
+                if x < x_min:
+                    x_min = x
+                if y > y_max:
+                    y_max = y
+                if y < y_min:
+                    y_min = y
+            cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            mp_drawing.draw_landmarks(frame, handLMs, mphands.HAND_CONNECTIONS)
+    cv2.imshow("Frame", frame)
+
+    cv2.waitKey(1)

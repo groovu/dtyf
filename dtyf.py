@@ -25,6 +25,8 @@ with mp_holistic.Holistic(min_detection_confidence=0.25, min_tracking_confidence
         
         # Recolor Feed
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        height, width, _ = image.shape
+
         # Make Detections
         results = holistic.process(image)
         # prints coords of face / hands?
@@ -54,7 +56,33 @@ with mp_holistic.Holistic(min_detection_confidence=0.25, min_tracking_confidence
         mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS, 
                                  left_draw_spec)
 
+        hand_landmarks = results.right_hand_landmarks
+        h, w, c = frame.shape
+        if hand_landmarks:
+            print(type(hand_landmarks.landmark))
+            #cv2.rectangle(frame, (0,0), (hand_landmarks.x, hand_landmarks.y), (0,222,0))
+        # if hand_landmarks:
+        #     for handLMs in hand_landmarks:
+        #         x_max = 0
+        #         y_max = 0
+        #         x_min = w
+        #         y_min = h
+        #         for lm in handLMs.landmark:
+        #             x, y = int(lm.x * w), int(lm.y * h)
+        #             if x > x_max:
+        #                 x_max = x
+        #             if x < x_min:
+        #                 x_min = x
+        #             if y > y_max:
+        #                 y_max = y
+        #             if y < y_min:
+        #                 y_min = y
+        #         cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        #         mp_drawing.draw_landmarks(frame, handLMs, mp_holistic.HAND_CONNECTIONS)
 
+        # x = results.left_hand_landmarks
+        # cv2.rectangle(frame, (0,0), (100,100), (0,255,0), 2)
+        # print(x)
         cv2.imshow('Video Feed', image)
 
         exit = cv2.waitKey(10) # press ESC to exit
